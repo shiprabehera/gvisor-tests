@@ -8,6 +8,7 @@ For Mac users, you can setup a virtual Ubuntu Linux box using Vagrant:
 First install Vagrant and VirtualBox. Then, on the terminal:
 
 `vagrant init ubuntu/trusty64`
+
 This will create a new Vagrantfile. 
 Now, boot the box up. This could take a while as it’ll download the image from cloud:
 
@@ -25,7 +26,9 @@ vagrant ssh
 Now, you can install everything inside your linux box.
 
 Download the runsc download runsc container runtime from the latest build: 
+```
 wget https://storage.googleapis.com/gvisor/releases/nightly/latest/runscwget https://storage.googleapis.com/gvisor/releases/nightly/latest/runsc.sha512sha512sum -c runsc.sha512chmod a+x runscsudo mv runsc /usr/local/bin
+```
 
 Then, configure Docker to use runsc by adding a runtime entry to Docker configuration (/etc/docker/daemon.json):
 ```
@@ -50,6 +53,7 @@ Note: While using the time command, most of the overhead will be associated with
 
 
 **Start-up Time**
+
 Since it is a sandbox environment, it is useful to check the ability to spin-up containers quickly. Here we have a node application that runs express js, loads few modules and binds an HTTP server.
 ```
 cd docker-tests/node_project
@@ -73,11 +77,13 @@ sys	0m0.040s
 Results: We can see that runsc performs slightly better than run.
 
 **Network**
+
 Was not able to test the networking performance on gVisor, as the node server could not reached:
 curl: (56) Recv failure: Connection reset by peer
 If the container is launched using default runtime, there is no issue and `curl localhost:80` will return 200.
 
 **System calls**
+
 Here I’ve measured the time of the _write()_ system call. The sample program just writes a whole bunch of a’s into a file. It takes an argument which lets you specify the write size i.e how many characters to write at a time. If you check the Dockerfile, you’ll find that it has:
 ```
 CMD ["./syscalls","4000"] // which is essentially running the output as ./syscalls 4000 so 4000 characters are written at a time
@@ -115,6 +121,7 @@ sys	0m0.044s
 Results: We can see that runsc performs slightly better than runc
 
 **Multithreading**
+
 I have a simple program in c which is making a new process using _fork()_.
 ```
 cd docker-tests/fork
@@ -160,6 +167,7 @@ sys	0m0.024s
 Result: Here we see that runsc is slightly slower.
 
 **References:**
+
 https://gvisor.dev/docs/architecture_guide/performance/
 https://thenewstack.io/how-to-implement-secure-containers-using-googles-gvisor/
 https://github.com/bob-beck/examples
