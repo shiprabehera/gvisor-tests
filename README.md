@@ -48,6 +48,10 @@ All the tests have been conducted on the ptrace platform because it does not req
 
 
 ## Tests conducted
+Clone this repository:
+
+`git clone https://github.com/shiprabehera/gvisor-tests.git`
+
 In order to see the overheard, use Linux’s time command to see how much time the program takes during its execution. 
 Note: While using the time command, most of the overhead will be associated with Docker itself, so time includes _creating_ and _starting_ the container.
 
