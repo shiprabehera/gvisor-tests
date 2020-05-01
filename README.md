@@ -31,7 +31,7 @@ wget https://storage.googleapis.com/gvisor/releases/nightly/latest/runscwget htt
 ```
 
 Then, configure Docker to use runsc by adding a runtime entry to Docker configuration (/etc/docker/daemon.json):
-```
+```json
 {
     "runtimes": {
         "runsc": {
@@ -55,19 +55,19 @@ Note: While using the time command, most of the overhead will be associated with
 **Start-up Time**
 
 Since it is a sandbox environment, it is useful to check the ability to spin-up containers quickly. Here we have a node application that runs express js, loads few modules and binds an HTTP server.
-```
+```sh
 cd docker-tests/node_project
 docker build -t username/nodejs-demo .
 ```
 _With gVisor runtime_
-```
+```sh
 time docker run --runtime=runsc --name nodejs-demo -p 80:8080 -d username/nodejs-demo
 real	0m0.804s
 user	0m0.040s
 sys	0m0.024s
 ```
 _With default runtime_
-```
+```sh
 time docker run --name nodejs-demo -p 80:8080 -d username/nodejs-demo
 real	0m1.001s
 user	0m0.072s
@@ -85,17 +85,17 @@ If the container is launched using default runtime, there is no issue and `curl 
 **System calls**
 
 Here I’ve measured the time of the _write()_ system call. The sample program just writes a whole bunch of a’s into a file. It takes an argument which lets you specify the write size i.e how many characters to write at a time. If you check the Dockerfile, you’ll find that it has:
-```
+```sh
 CMD ["./syscalls","4000"] // which is essentially running the output as ./syscalls 4000 so 4000 characters are written at a time
 ```
 
 You can change the argument by modifying the Dockerfile.
-```
+```sh
 cd docker-tests/fwrite
 docker build -t syscall .
 ```
 _With default runtime_
-```
+```sh
 time docker run -it syscall
 
 Writing 5000000 'a' to my output
@@ -107,7 +107,7 @@ sys	0m0.028s
 ```
 
 _With gVisor runtime_
-```
+```sh
 time docker run --runtime=runsc -it syscall
 
 Writing 5000000 'a' to my output
@@ -123,12 +123,12 @@ Results: We can see that runsc performs slightly better than runc
 **Multithreading**
 
 I have a simple program in c which is making a new process using _fork()_.
-```
+```sh
 cd docker-tests/fork
 docker build -t fork .
 ```
 _With default runtime_
-```
+```sh
 time docker run -it fork
 
 Process 1, starting up
@@ -147,7 +147,7 @@ sys	0m0.040s
 
 
 _With gVisor runtime_
-```
+```sh
 time docker run --runtime=runsc -it fork
 
 Process 1, starting up
